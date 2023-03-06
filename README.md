@@ -8,8 +8,9 @@ La problemática a la que se enfrenta quien por primera vez quiere analizar esto
 
 1) Gestionar la descarga de datos a través de 2 componentes:
     
-    a) Web scraping: se automatiza la consulta y descarga de los datos.
-    b) Servidor: se introducen los datos en una base de datos relacional. 
+    a) **Web scraping:** se automatiza la consulta y descarga de los datos.
+    
+    b) **Servidor:** se introducen los datos en una base de datos relacional. 
   
 2) Reducción de la cantidad de datos para permitir un análisis más fluido con herramientas de uso común como Excel.
 
