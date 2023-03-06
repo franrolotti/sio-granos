@@ -14,4 +14,4 @@ La problemática a la que se enfrenta quien por primera vez quiere analizar esto
   
 2) Reducción de la cantidad de datos para permitir un análisis más fluido con herramientas de uso común como Excel.
 
-Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome y con Python. 
+Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome y con Python. La salida es un documento con menor cantidad de datos pasible de ser analizado con excel.
