@@ -28,11 +28,11 @@ Otro problema usual es la difícil interpretación de los datos, que puede lleva
 
 1) Gestionar la descarga de datos a través de 2 componentes:
     
-    a) **Web scraping:** se automatiza la consulta y descarga de los datos.
+    a) **Web scraping:** se automatiza la consulta y descarga de los datos (`data-update.py`).
     
     b) **Servidor:** se introducen los datos en una base de datos relacional. 
   
-2) Reducción de la cantidad de datos para permitir un análisis más fluido con herramientas de uso común como Excel.
+2) Reducción de la cantidad de datos para permitir un análisis más fluido con herramientas de uso común como Excel (`data-filtering.py`).
 
 
 
