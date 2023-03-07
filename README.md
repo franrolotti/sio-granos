@@ -9,7 +9,7 @@ SIO GRANOS es un sistema de información de operaciones de granos que tiene info
 * Los tipos de contratos.
 * Entre otros. 
 
-Algunos trabajos a la fecha realizados con SIO GRANOS son [negociacion de soja por BCR](https://www.bcr.com.ar/es/mercados/investigacion-y-desarrollo/informativo-semanal/noticias-informativo-semanal/patrones-del), el [análisis del programa de incremento exportador de BCR](https://www.bcr.com.ar/es/mercados/mercado-de-granos/noticias/restando-5-dias-para-su-finalizacion-el-programa-de-incremento), o el [mapa de comercialización de granos en argentina de la Bolsa de Buenos Aires](https://www.bolsadecereales.com/post-2#:~:text=SIO-GRANOS%20es%20un%20Sistema%20unificado%20de%20Informaci%C3%B3n%20Obligatoria,sistema%20y%20realizar%20declaraciones%20de%20las%20operaciones%20realizadas.).
+Algunos trabajos a la fecha realizados con SIO GRANOS son [negociacion de soja por BCR](https://www.bcr.com.ar/es/mercados/investigacion-y-desarrollo/informativo-semanal/noticias-informativo-semanal/patrones-del), el [análisis del programa de incremento exportador de BCR](https://www.bcr.com.ar/es/mercados/mercado-de-granos/noticias/restando-5-dias-para-su-finalizacion-el-programa-de-incremento), o el [mapa de comercialización de granos en argentina de la Bolsa de Cereales de Buenos Aires](https://www.bolsadecereales.com/post-2#:~:text=SIO-GRANOS%20es%20un%20Sistema%20unificado%20de%20Informaci%C3%B3n%20Obligatoria,sistema%20y%20realizar%20declaraciones%20de%20las%20operaciones%20realizadas.).
 
 
 ## Inconvenientes
