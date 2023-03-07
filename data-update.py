@@ -56,7 +56,7 @@ port = values[4]
 
 
 # All the stuff inside your window.
-layout = [  [sg.Text('Haga click derecho en su carpeta de descargas, luego dentro de propiedades busque la ubicación y copie y pegue la ruta.')],
+layout = [  [sg.Text('Haga click derecho en su carpeta de descargas, \nluego dentro de propiedades busque la ubicación y copie y pegue la ruta.')],
             [sg.Text('Path a la carpeta:'), sg.InputText()],
             [sg.Button('Ok'), sg.Button('Cancel')] ]
 
@@ -196,7 +196,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     else:
         today_day = today_day
 
-    print("Descargando fechas: ", datetime.date(old_max_day, old_max_month+1, old_max_year), " --- ", print(today_day,today_month,today_year))
+    print("Descargando fechas: ", old_max_day, old_max_month+1, old_max_year, " --- ", today_day,today_month+1,today_year)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get("https://www.siogranos.com.ar/Consulta_publica/operaciones_informadas_exportar.aspx")
     driver.maximize_window()
@@ -267,7 +267,12 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
             sg.popup(f'No habían datos para la fecha seleccionada, se continúa con la descarga.')
         else:
             sg.popup('Espere...')
-            time.sleep(60)
+            time.sleep(30)
+            # Buscamos el último archivo descargado
+            folder_path = r'C:\Users\frolotti\Downloads'
+            file_type = r'\*csv'
+            files = glob.glob(folder_path + file_type)
+            max_file = max(files, key=os.path.getctime)
             if "operaciones_informadas" in max_file:
                 shutil.move(max_file, f'Archivos/{old_max_day,old_max_month,old_max_year}-{today_day,today_month,today_year}.csv')
             else:
@@ -299,7 +304,6 @@ if (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_max
         event, values = window.read()
         if event == sg.WINDOW_CLOSED:
             break
-    quit()
 
 
 try:
@@ -388,25 +392,9 @@ connection.close()
     
 # Columnas con año, mes, día
 
-base_de_datos = base_de_datos[ base_de_datos['FECHA CONCERTACION'].str.contains("CÓRDOBA")==False ]
-
-base_de_datos['AÑO OP'] = base_de_datos['FECHA OPERACION'].str.slice(start=6, stop = 10).astype(float)
-base_de_datos['MES OP'] = base_de_datos['FECHA OPERACION'].str.slice(start=3, stop = 5).astype(float)
-base_de_datos['DIA OP'] = base_de_datos['FECHA OPERACION'].str.slice(start=0, stop = 2).astype(float)
-
-
-# Fecha para carga de datos
-    
-fecha_max = base_de_datos.loc[base_de_datos['AÑO OP'] == max(base_de_datos['AÑO OP'])]
-fecha_max = fecha_max.loc[fecha_max['MES OP']== max(fecha_max['MES OP'])]
-fecha_max = fecha_max.loc[fecha_max['DIA OP']== max(fecha_max['DIA OP'])]
-fecha_max = fecha_max['FECHA OPERACION'].values
-fecha_max
-
-
-old_max_day = int(fecha_max[0][0:2])+1
-old_max_month = int(fecha_max[0][3:5])-1
-old_max_year = int(fecha_max[0][6:10])
+old_max_day = old_max_day+1
+old_max_month = old_max_month
+old_max_year = old_max_year
 
 if date.today().day==1:                  # El día corriente no está disponible para descargar, hay que
     today_day = 28                       # usar el día anterior
