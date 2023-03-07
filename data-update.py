@@ -76,6 +76,29 @@ window.close()
 path = values[0]
 
 
+# Carpeta para almacenar archivos temporales
+
+
+# All the stuff inside your window.
+layout = [  [sg.Text('Crear una carpeta de archivos temporales, \nluego copie y pegue la ruta de acceso a la carpeta.\nDebe ser una carpeta vacía.')],
+            [sg.Text('Path a la carpeta:'), sg.InputText()],
+            [sg.Button('Ok'), sg.Button('Cancel')] ]
+
+# Create the Window
+window = sg.Window('Carpeta de archivos temporales', layout)
+# Event Loop to process "events" and get the "values" of the inputs
+while True:
+    event, values = window.read()
+    if event == sg.WIN_CLOSED or event == 'Cancel' or 'Ok': # if user closes window or clicks cancel
+        print('Path: ', values[0])
+        break
+    
+window.close()
+
+
+path_archivos = values[0]
+
+
 
 # Borramos los archivos de sio-granos de las descargas para que no haya errores
 
@@ -98,7 +121,7 @@ while "operaciones_informadas" in max_file:
 
 # Borramos los archivos del directorio en el que descargaremos los datos que faltan
 
-directory = 'Archivos/*'
+directory = fr'{path_archivos}/*'
 files = glob.glob(directory)
 
 for file in files:
@@ -108,7 +131,7 @@ for file in files:
 
 print("Directorios de trabajo limpios.")
 
-# Selección de procedencia y host de almacenamiento
+# Selección de procedencia 
 
 
 
@@ -122,7 +145,7 @@ else:
     quit()
 
 proc = values["LB"][0]
-procedencia = unidecode.unidecode(values["LB"][0]).lower()
+procedencia = unidecode.unidecode(values["LB"][0]).lower().replace(" ", "_")
 
 
 
@@ -139,6 +162,7 @@ try:
     # Columnas con año, mes, día
 
     base_de_datos = base_de_datos[ base_de_datos['FECHA CONCERTACION'].str.contains("CÓRDOBA")==False ]
+    base_de_datos = base_de_datos[base_de_datos['FECHA OPERACION'].str.match("[0-9]{2}/[0-9]{2}/[0-9]{4}")]
 
     base_de_datos['AÑO OP'] = base_de_datos['FECHA OPERACION'].str.slice(start=6, stop = 10).astype(float)
     base_de_datos['MES OP'] = base_de_datos['FECHA OPERACION'].str.slice(start=3, stop = 5).astype(float)
@@ -168,7 +192,7 @@ old_max_year = int(fecha_max[0][6:10])
 # Loop para descargar datos si hay una diferencia de más de 180 días
 
 while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_max_day)).days >= 180:
-    print("Los días a cargar son más de 180.")
+    print("Los días a cargar son más de 180. Se carga en intervalos de 180 días, este es el límite de sio granos.")
     today_day = (datetime.date(old_max_year, old_max_month+1, old_max_day) + dt.timedelta(days=180)).day
     today_month = (datetime.date(old_max_year, old_max_month+1, old_max_day) + dt.timedelta(days=180)).month
     today_year = (datetime.date(old_max_year, old_max_month+1, old_max_day) + dt.timedelta(days=180)).year
@@ -245,7 +269,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     time.sleep(15)
 
     # Buscamos el último archivo descargado
-    folder_path = r'C:\Users\frolotti\Downloads'
+    folder_path = fr'{path}'
     file_type = r'\*csv'
     files = glob.glob(folder_path + file_type)
     max_file = max(files, key=os.path.getctime)
@@ -256,7 +280,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     
     if "operaciones_informadas" in max_file:
         print("Se encontró el archivo en descargas.")
-        shutil.move(max_file, f'Archivos/{old_max_day,old_max_month+1,old_max_year}-{today_day,today_month+1,today_year}.csv')
+        shutil.move(max_file, f'{path_archivos}/{old_max_day,old_max_month+1,old_max_year}-{today_day,today_month+1,today_year}.csv')
         print("Archivo movido a la carpeta de trabajo.")
     else:
         print("No se encontró el archivo en descargas.")
@@ -265,16 +289,18 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
 
         if event == 'No hay datos':
             sg.popup(f'No habían datos para la fecha seleccionada, se continúa con la descarga.')
+            print("No hay datos para las fechas seleccionadas.")
         else:
             sg.popup('Espere...')
+            print("En espera de descarga...")
             time.sleep(30)
             # Buscamos el último archivo descargado
-            folder_path = r'C:\Users\frolotti\Downloads'
+            folder_path = fr'{path}'
             file_type = r'\*csv'
             files = glob.glob(folder_path + file_type)
             max_file = max(files, key=os.path.getctime)
             if "operaciones_informadas" in max_file:
-                shutil.move(max_file, f'Archivos/{old_max_day,old_max_month,old_max_year}-{today_day,today_month,today_year}.csv')
+                shutil.move(max_file, f'{path_archivos}/{old_max_day,old_max_month+1,old_max_year}-{today_day,today_month+1,today_year}.csv')
             else:
                 
                 event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. ¿Habían datos para la fecha seleccionada? (Ver en pestaña de Chrome sio-granos)')],[sg.Button('No hay datos'), sg.Button('Se está descargando')]]).read(close=True)
@@ -285,7 +311,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
                     sg.popup_cancel('Hubo un error. Intente correr el programa nuevamente. Asegúrese de contar con una buena conexión a internet.')
                     quit()
 
-
+    print("----------------------------------------------------")
 
 
     old_max_year = today_year
@@ -311,12 +337,12 @@ try:
     # agregar un período de tiempo muy largo:
 
     data = pd.DataFrame()
-    fichero = os.listdir('Archivos/')
+    fichero = os.listdir(f'{path_archivos}/')
 
     #Creo un "for" que me lea todos los archivos y me vaya apendizando las bases a nuestro Dataframe "data":
 
     for base in fichero:    # Compila todos los archivos de la carpeta
-            apendice = pd.read_csv(f"Archivos/{base}", index_col=None, sep=";",encoding='utf-16le', header=0,error_bad_lines=False,warn_bad_lines=True)
+            apendice = pd.read_csv(f'{path_archivos}/{base}', index_col=None, sep=";",encoding='utf-16le', header=0,error_bad_lines=False,warn_bad_lines=True)
             data = pd.concat([data,apendice])
 
 
@@ -458,7 +484,7 @@ time.sleep(30)
 
 # Borramos los archivos del directorio en el que descargaremos los datos que faltan
 
-directory = 'Archivos/*'
+directory = fr'{path_archivos}/*'
 files = glob.glob(directory)
 
 for file in files:
@@ -467,7 +493,7 @@ for file in files:
 
 
 # Buscamos el último archivo descargado
-folder_path = r'C:\Users\frolotti\Downloads'
+folder_path = fr'{path}'
 file_type = r'\*csv'
 files = glob.glob(folder_path + file_type)
 max_file = max(files, key=os.path.getctime)
@@ -479,7 +505,7 @@ max_file = max(files, key=os.path.getctime)
 
 
 if "operaciones_informadas" in max_file:
-    shutil.move(max_file, r'Archivos')
+    shutil.move(max_file, fr'{path_archivos}')
 else:
     sg.theme('DarkAmber')   # Add a touch of color
 
@@ -497,12 +523,12 @@ else:
 # Creo un Dataframe vacio y una lista con los archivos que se encuentran en el directorio, en caso de querer 
 # agregar un período de tiempo muy largo:
 data = pd.DataFrame()
-fichero = os.listdir('Archivos/')
+fichero = os.listdir(f'{path_archivos}')
 
     #Creo un "for" que me lea todos los archivos y me vaya apendizando las bases a nuestro Dataframe "data":
 
 for base in fichero:    # Compila todos los archivos de la carpeta
-    apendice = pd.read_csv(f"Archivos/{base}", index_col=None, sep=";",encoding='utf-16le', header=0,error_bad_lines=False,warn_bad_lines=True)
+    apendice = pd.read_csv(f"{path_archivos}/{base}", index_col=None, sep=";",encoding='utf-16le', header=0,error_bad_lines=False,warn_bad_lines=True)
     data = pd.concat([data,apendice])
 
 
@@ -547,3 +573,4 @@ connection.close()
 print("Carga finalizada.")
 
 
+quit()
