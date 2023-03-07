@@ -95,6 +95,7 @@ while "operaciones_informadas" in max_file:
     files = glob.glob(folder_path + file_type)
     max_file = max(files, key=os.path.getctime)
 
+
 # Borramos los archivos del directorio en el que descargaremos los datos que faltan
 
 directory = 'Archivos/*'
@@ -105,9 +106,11 @@ for file in files:
         os.remove(file)
 
 
+print("Directorios de trabajo limpios.")
+
 # Selección de procedencia y host de almacenamiento
 
-sg.theme('DarkAmber')   # Add a touch of color
+
 
 event, values = sg.Window('Procedencia', [[sg.Text('Seleccione la procedencia->'), sg.Listbox(["TODOS...", "BUENOS AIRES", "CATAMARCA", "CHACO", "CHUBUT", "CIUDAD AUTÓNOMA DE BUENOS AIRES", "CÓRDOBA", "CORRIENTES", "ENTRE RÍOS", "FORMOSA", "JUJUY", "LA PAMPA", "LA RIOJA", "MENDOZA", "MISIONES", "NEUQUÉN", "RÍO NEGRO", "SALTA", "SAN JUAN", "SAN LUIS", "SANTA CRUZ", "SANTA FE", "SANTIAGO DEL ESTERO", "TIERRA DEL FUEGO", "TUCUMÁN"], size=(20, 3), key='LB')],
     [sg.Button('Ok'), sg.Button('Cancelar')]]).read(close=True)
@@ -149,7 +152,7 @@ try:
     fecha_max = fecha_max.loc[fecha_max['DIA OP']== max(fecha_max['DIA OP'])]
     fecha_max = fecha_max['FECHA OPERACION'].values
     fecha_max
-
+    print(f"Última fecha el {fecha_max[0]}")
 except:
     print("No se encontró la base, se procede a cargarla desde cero.")
     fecha_max = np.array(['01/01/2013 02:04:21 p.m.'], dtype=object)
@@ -165,6 +168,7 @@ old_max_year = int(fecha_max[0][6:10])
 # Loop para descargar datos si hay una diferencia de más de 180 días
 
 while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_max_day)).days >= 180:
+    print("Los días a cargar son más de 180.")
     today_day = (datetime.date(old_max_year, old_max_month+1, old_max_day) + dt.timedelta(days=180)).day
     today_month = (datetime.date(old_max_year, old_max_month+1, old_max_day) + dt.timedelta(days=180)).month
     today_year = (datetime.date(old_max_year, old_max_month+1, old_max_day) + dt.timedelta(days=180)).year
@@ -192,7 +196,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     else:
         today_day = today_day
 
-
+    print("Descargando fechas: ", datetime.date(old_max_day, old_max_month+1, old_max_year), " --- ", print(today_day,today_month,today_year))
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get("https://www.siogranos.com.ar/Consulta_publica/operaciones_informadas_exportar.aspx")
     driver.maximize_window()
@@ -251,11 +255,13 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     # Si el archivo no llegó a descargarse, puede ser por demoras en el internet o porque no están los datos
     
     if "operaciones_informadas" in max_file:
+        print("Se encontró el archivo en descargas.")
         shutil.move(max_file, f'Archivos/{old_max_day,old_max_month+1,old_max_year}-{today_day,today_month+1,today_year}.csv')
+        print("Archivo movido a la carpeta de trabajo.")
     else:
-        sg.theme('DarkAmber')   # Add a touch of color
+        print("No se encontró el archivo en descargas.")
 
-        event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. ¿Habían datos para la fecha seleccionada? (Ver en pestaña de Chrome sio-granos)')],[sg.Button('No hay datos'), sg.Button('Se está descargando')]]).read(close=True)
+        event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.\n Si hay problemas de internet o se cayó la página, puede descargar manualmente los datos de\n la fecha seleccionada (ver en terminal) y luego presionar "No hay datos", o cancelar e intentar nuevamente.')],[sg.Button('No hay datos'), sg.Button('Se está descargando')]]).read(close=True)
 
         if event == 'No hay datos':
             sg.popup(f'No habían datos para la fecha seleccionada, se continúa con la descarga.')
@@ -265,8 +271,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
             if "operaciones_informadas" in max_file:
                 shutil.move(max_file, f'Archivos/{old_max_day,old_max_month,old_max_year}-{today_day,today_month,today_year}.csv')
             else:
-                sg.theme('DarkAmber')   # Add a touch of color
-
+                
                 event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. ¿Habían datos para la fecha seleccionada? (Ver en pestaña de Chrome sio-granos)')],[sg.Button('No hay datos'), sg.Button('Se está descargando')]]).read(close=True)
 
                 if event == 'No hay datos':
@@ -282,10 +287,25 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     old_max_month = today_month
     old_max_day = today_day
 
+print("Loop de descarga de datos de hace más de 180 días finalizado.")
+
+if (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_max_day)).days <= 1:
+    # All the stuff inside your window.
+    layout = [[sg.Text('Los datos se encuentran actualizados.')]]
+
+    # Create the Window
+    window = sg.Window("Carga completa", layout)
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED:
+            break
+    quit()
+
 
 try:
     # Creo un Dataframe vacio y una lista con los archivos que se encuentran en el directorio, en caso de querer 
     # agregar un período de tiempo muy largo:
+
     data = pd.DataFrame()
     fichero = os.listdir('Archivos/')
 
@@ -341,7 +361,7 @@ try:
     try: 
         cursor.execute(crear_tabla_statement)
     except:
-        print("La tabla ya existe, se va a proceder a cargar los datos:")
+        print("La tabla ya existe, se va a proceder a cargar los datos.")
 
 
         # Preparo la inserción de datos:
