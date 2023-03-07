@@ -1,5 +1,7 @@
 # SIO GRANOS
 
+> **Importante: Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome, Python y MySQL. La salida es un documento con menor cantidad de datos pasible de ser analizado con excel.**
+
 ## Introducción
 
 SIO GRANOS es un sistema de información de operaciones de granos que tiene información hasta el día anterior al de la consulta. La carga de las operaciones a través de este sistema origina una **fuente de datos muy potente para los analistas del mercado granario**. No sólo la información es más actualizada que la que publican los organismos oficiales, si no que tiene mayores niveles de detalle. Las variables que se pueden explorar son:
@@ -32,7 +34,6 @@ Otro problema usual es la difícil interpretación de los datos, que puede lleva
   
 2) Reducción de la cantidad de datos para permitir un análisis más fluido con herramientas de uso común como Excel.
 
-Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome, Python y MySQL. La salida es un documento con menor cantidad de datos pasible de ser analizado con excel.
 
 
 
