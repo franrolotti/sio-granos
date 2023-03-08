@@ -2,6 +2,15 @@
 
 > **Importante: Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome, Python y MySQL. La salida es un documento con menor cantidad de datos pasible de ser analizado con excel.**
 
+## Instrucciones
+
+1) Instalar Python > 3.7.
+2) Instalar MySQL y crear una conexión y un schema (database) que serán utilizados para almacenar los datos.
+3) Correr script `data-update.py` para actualizar los datos.
+4) Correr script `data-filtering.py` para filtrar y descargar excel con los datos.
+
+Cualquier duda mi contacto es [Francisco Rolotti](https://www.linkedin.com/in/francisco-rolotti/)
+
 ## Introducción
 
 SIO GRANOS es un sistema de información de operaciones de granos que tiene información hasta el día anterior al de la consulta. La carga de las operaciones a través de este sistema origina una **fuente de datos muy potente para los analistas del mercado granario**. No sólo la información es más actualizada que la que publican los organismos oficiales, si no que tiene mayores niveles de detalle. Las variables que se pueden explorar son:
