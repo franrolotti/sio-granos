@@ -260,8 +260,11 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     # Procedencia:
     sel = Select(driver.find_element(By.ID, "ddlProvincia"))
     time.sleep(3)
-    sel.select_by_visible_text(proc)
-
+    try:
+        sel.select_by_visible_text(proc)
+    except:
+        time.sleep(10)
+        sel.select_by_visible_text(proc)
 
 
     csv = driver.find_element(By.ID,"btn_generar_csv")
@@ -474,8 +477,11 @@ day.click()
 # Procedencia:
 sel = Select(driver.find_element(By.ID, "ddlProvincia"))
 time.sleep(3)
-sel.select_by_visible_text(proc)
-
+try:
+    sel.select_by_visible_text(proc)
+except:
+    time.sleep(10)
+    sel.select_by_visible_text(proc)
 
 
 csv = driver.find_element(By.ID,"btn_generar_csv")
