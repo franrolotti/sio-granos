@@ -56,7 +56,7 @@ port = values[4]
 
 
 # All the stuff inside your window.
-layout = [  [sg.Text('Haga click derecho en su carpeta de descargas, \nluego dentro de propiedades busque la ubicación y copie y pegue la ruta.')],
+layout = [  [sg.Text('Haga click derecho en su carpeta de descargas,\nluego dentro de propiedades busque la ubicación y copie y pegue la ruta.')],
             [sg.Text('Path a la carpeta:'), sg.InputText()],
             [sg.Button('Ok'), sg.Button('Cancel')] ]
 
@@ -146,6 +146,19 @@ else:
 
 proc = values["LB"][0]
 procedencia = unidecode.unidecode(values["LB"][0]).lower().replace(" ", "_")
+
+# Chequeo de conexión a la base
+
+
+try:
+    connection = pymysql.connect(host=host,user=user, passwd=passwd, db=db, port=int(port))
+    cursor = connection.cursor()
+    connection.commit()
+    connection.close()
+    print("La conexión a SQL está correctamente configurada.")
+except:
+    sg.popup(f'La conexión a la base dió un error. Compruebe si en MySQL tiene\nconfigurado correctamente el acceso a la base.')
+    quit()
 
 
 
@@ -288,7 +301,79 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     else:
         print("No se encontró el archivo en descargas.")
 
-        event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.\n Si hay problemas de internet o se cayó la página, puede descargar manualmente los datos de\n la fecha seleccionada (ver en terminal) y luego presionar "No hay datos", o cancelar e intentar nuevamente.')],[sg.Button('No hay datos'), sg.Button('Se está descargando')]]).read(close=True)
+        event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.\n Si hay problemas de internet o se cayó la página, puede descargar manualmente los datos de\n la fecha seleccionada (ver en terminal) y luego presionar "No hay datos", o cancelar e intentar nuevamente.')],[sg.Button('No hay datos'), sg.Button('Página caída'), sg.Button('Se está descargando')]]).read(close=True)
+
+        while event == "Página caída":
+            sg.popup('Se intentará nuevamente')
+            print("Descargando fechas: ", old_max_day, old_max_month+1, old_max_year, " --- ", today_day,today_month+1,today_year)
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            driver.get("https://www.siogranos.com.ar/Consulta_publica/operaciones_informadas_exportar.aspx")
+            driver.maximize_window()
+            time.sleep(3)
+
+            # Fecha de Inicio:
+            fecha_inicio = driver.find_element(By.NAME,"txtFechaOperacionDesde").click()
+            time.sleep(1)
+            # Mes:
+            select_mes_inicio = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-month"))
+            select_mes_inicio.select_by_value(str(old_max_month))
+            time.sleep(1)
+            # Año:
+            select_anio_inicio = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-year"))
+            select_anio_inicio.select_by_value(str(old_max_year))
+            time.sleep(1)
+            # Dia:
+            day_inicio = driver.find_element(By.XPATH,"//a[@class='ui-state-default' and text()="+str(old_max_day)+"]")
+            day_inicio.click()
+
+
+            # Fecha de hoy:
+            fecha_hoy = driver.find_element(By.NAME,"txtFechaOperacionHasta").click()
+            time.sleep(1)
+            # Mes:
+            select_mes = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-month"))
+            select_mes.select_by_value(str(today_month))
+            time.sleep(1)
+            # Año:
+            select_anio = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-year"))
+            select_anio.select_by_value(str(today_year))
+            time.sleep(1)
+            # Dia:
+            day = driver.find_element(By.XPATH,"//a[@class='ui-state-default' and text()="+str(today_day)+"]")
+            day.click()
+
+            # Procedencia:
+            sel = Select(driver.find_element(By.ID, "ddlProvincia"))
+            time.sleep(3)
+            try:
+                sel.select_by_visible_text(proc)
+            except:
+                time.sleep(10)
+                sel.select_by_visible_text(proc)
+
+
+            csv = driver.find_element(By.ID,"btn_generar_csv")
+            csv.click()
+            time.sleep(15)
+
+            # Buscamos el último archivo descargado
+            folder_path = fr'{path}'
+            file_type = r'\*csv'
+            files = glob.glob(folder_path + file_type)
+            max_file = max(files, key=os.path.getctime)
+
+            if "operaciones_informadas" in max_file:
+                    print("Se encontró el archivo en descargas.")
+                    shutil.move(max_file, f'{path_archivos}/{old_max_day,old_max_month+1,old_max_year}-{today_day,today_month+1,today_year}.csv')
+                    print("Archivo movido a la carpeta de trabajo.")
+            else:
+                print("No se encontró el archivo en descargas.")
+
+            event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.')],
+                                                    [sg.Button('No hay datos'), sg.Button('Página caída'), sg.Button('Se está descargando')]]).read(close=True)
+
+
+
 
         if event == 'No hay datos':
             sg.popup(f'No habían datos para la fecha seleccionada, se continúa con la descarga.')
@@ -333,6 +418,7 @@ if (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_max
         event, values = window.read()
         if event == sg.WINDOW_CLOSED:
             break
+    quit()
 
 
 try:
@@ -513,12 +599,85 @@ max_file = max(files, key=os.path.getctime)
 if "operaciones_informadas" in max_file:
     shutil.move(max_file, fr'{path_archivos}')
 else:
-    sg.theme('DarkAmber')   # Add a touch of color
+    event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.\n Si hay problemas de internet o se cayó la página, puede descargar manualmente los datos de\n la fecha seleccionada (ver en terminal) y luego presionar "No hay datos", o cancelar e intentar nuevamente.')],[sg.Button('No hay datos'), sg.Button('Página caída'), sg.Button('Se está descargando')]]).read(close=True)
 
-    event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Si no había información en las fechas seleccionadas, presione Ok. Caso contrario, presione Cancelar')],[sg.Button('Ok'), sg.Button('Cancelar')]]).read(close=True)
+    while event == "Página caída":
+            sg.popup('Se intentará nuevamente')
+            print("Descargando fechas: ", old_max_day, old_max_month+1, old_max_year, " --- ", today_day,today_month+1,today_year)
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            driver.get("https://www.siogranos.com.ar/Consulta_publica/operaciones_informadas_exportar.aspx")
+            driver.maximize_window()
+            time.sleep(3)
+
+            # Fecha de Inicio:
+            fecha_inicio = driver.find_element(By.NAME,"txtFechaOperacionDesde").click()
+            time.sleep(1)
+            # Mes:
+            select_mes_inicio = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-month"))
+            select_mes_inicio.select_by_value(str(old_max_month))
+            time.sleep(1)
+            # Año:
+            select_anio_inicio = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-year"))
+            select_anio_inicio.select_by_value(str(old_max_year))
+            time.sleep(1)
+            # Dia:
+            day_inicio = driver.find_element(By.XPATH,"//a[@class='ui-state-default' and text()="+str(old_max_day)+"]")
+            day_inicio.click()
+
+
+            # Fecha de hoy:
+            fecha_hoy = driver.find_element(By.NAME,"txtFechaOperacionHasta").click()
+            time.sleep(1)
+            # Mes:
+            select_mes = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-month"))
+            select_mes.select_by_value(str(today_month))
+            time.sleep(1)
+            # Año:
+            select_anio = Select(driver.find_element(By.CLASS_NAME,"ui-datepicker-year"))
+            select_anio.select_by_value(str(today_year))
+            time.sleep(1)
+            # Dia:
+            day = driver.find_element(By.XPATH,"//a[@class='ui-state-default' and text()="+str(today_day)+"]")
+            day.click()
+
+            # Procedencia:
+            sel = Select(driver.find_element(By.ID, "ddlProvincia"))
+            time.sleep(3)
+            try:
+                sel.select_by_visible_text(proc)
+            except:
+                time.sleep(10)
+                sel.select_by_visible_text(proc)
+
+
+            csv = driver.find_element(By.ID,"btn_generar_csv")
+            csv.click()
+            time.sleep(15)
+
+            # Buscamos el último archivo descargado
+            folder_path = fr'{path}'
+            file_type = r'\*csv'
+            files = glob.glob(folder_path + file_type)
+            max_file = max(files, key=os.path.getctime)
+
+            if "operaciones_informadas" in max_file:
+                    print("Se encontró el archivo en descargas.")
+                    shutil.move(max_file, f'{path_archivos}/{old_max_day,old_max_month+1,old_max_year}-{today_day,today_month+1,today_year}.csv')
+                    print("Archivo movido a la carpeta de trabajo.")
+            else:
+                print("No se encontró el archivo en descargas.")
+
+            event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.')],
+                                                    [sg.Button('Descargado/No hay datos'), sg.Button('Página caída'), sg.Button('Se está descargando')]]).read(close=True)
+
+
+
+
+    event, values = sg.Window('Error', [[sg.Text('El archivo ya se descargó o se confirmó que no hay datos. Presione Ok.')],[sg.Button('Ok'), sg.Button('Cancelar')]]).read(close=True)
 
     if event == 'Ok':
-        sg.popup(f'No habían datos para la fecha seleccionada, se continúa con la descarga.')
+        print("Problema solucionado.")
+
     else:
         sg.popup_cancel('Hubo un error. Intente correr el programa nuevamente. Asegúrese de contar con una buena conexión a internet.')
         quit()
@@ -577,6 +736,7 @@ for i,row in baseSQL.iterrows():
 connection.commit()
 connection.close()
 print("Carga finalizada.")
+sg.popup(f'Carga finalizada.')
 
 
 quit()
