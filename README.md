@@ -1,6 +1,6 @@
 # SIO GRANOS
 
-> **Importante: Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome, Python y MySQL. La salida es un documento con menor cantidad de datos pasible de ser analizado con excel.**
+> **Importante: Estas soluciones están separadas en dos programas que fueron creados para funcionar en cualquier dispositivo que cuente con Chrome, Python y MySQL. La salida es un documento de excel filtrado y más fácil de manipular.**
 
 ## Instrucciones
 
