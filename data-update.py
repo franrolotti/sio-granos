@@ -301,7 +301,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
     else:
         print("No se encontró el archivo en descargas.")
 
-        event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.\n Si hay problemas de internet o se cayó la página, puede descargar manualmente los datos de\n la fecha seleccionada (ver en terminal) y luego presionar "No hay datos", o cancelar e intentar nuevamente.')],[sg.Button('No hay datos'), sg.Button('Página caída'), sg.Button('Se está descargando')]]).read(close=True)
+        event, values = sg.Window('Error', [[sg.Text('No se encontró el archivo descargado. Ver en pestaña de Chrome sio-granos.\n Si no habían datos para la fecha seleccionada, presione no hay datos.')],[sg.Button('No hay datos'), sg.Button('Página caída'), sg.Button('Se está descargando')]]).read(close=True)
 
         while event == "Página caída":
             sg.popup('Se intentará nuevamente')

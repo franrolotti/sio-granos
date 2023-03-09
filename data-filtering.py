@@ -59,6 +59,20 @@ proc = values["LB"][0]
 procedencia = unidecode.unidecode(values["LB"][0]).lower()
 
 
+# Chequeo de conexión a la base
+
+
+try:
+    connection = pymysql.connect(host=host,user=user, passwd=passwd, db=db, port=int(port))
+    cursor = connection.cursor()
+    connection.commit()
+    connection.close()
+    print("La conexión a SQL está correctamente configurada.")
+except:
+    sg.popup(f'La conexión a la base dió un error. Compruebe si en MySQL tiene\nconfigurado correctamente el acceso a la base.')
+    quit()
+
+
 
 try:
     connection = pymysql.connect(host=host,user=user, passwd=passwd, db=db, port=int(port))
