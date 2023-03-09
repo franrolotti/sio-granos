@@ -142,7 +142,7 @@ if event == 'Ok':
     sg.popup(f'Elegiste {values["LB"][0]}')
 else:
     sg.popup_cancel('El usuario no eligió')
-    quit()
+    exit()
 
 proc = values["LB"][0]
 procedencia = unidecode.unidecode(values["LB"][0]).lower().replace(" ", "_")
@@ -158,7 +158,7 @@ try:
     print("La conexión a SQL está correctamente configurada.")
 except:
     sg.popup(f'La conexión a la base dió un error. Compruebe si en MySQL tiene\nconfigurado correctamente el acceso a la base.')
-    quit()
+    exit()
 
 
 
@@ -397,7 +397,7 @@ while (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_
                     sg.popup(f'No habían datos para la fecha seleccionada, se continúa con la descarga.')
                 else:
                     sg.popup_cancel('Hubo un error. Intente correr el programa nuevamente. Asegúrese de contar con una buena conexión a internet.')
-                    quit()
+                    exit()
 
     print("----------------------------------------------------")
 
@@ -418,7 +418,7 @@ if (datetime.date.today() - datetime.date(old_max_year, old_max_month+1, old_max
         event, values = window.read()
         if event == sg.WINDOW_CLOSED:
             break
-    quit()
+    exit()
 
 
 try:
@@ -680,7 +680,7 @@ else:
 
     else:
         sg.popup_cancel('Hubo un error. Intente correr el programa nuevamente. Asegúrese de contar con una buena conexión a internet.')
-        quit()
+        exit()
 
 
 # Carga final de datos
@@ -739,4 +739,4 @@ print("Carga finalizada.")
 sg.popup(f'Carga finalizada.')
 
 
-quit()
+exit()

@@ -132,22 +132,6 @@ data.loc[~data["CONDICION PAGO"].isin(['A plazo']),"CONDICION PAGO"] = "Contraen
 
 
 
-# Creo una dummy para ver si el comprador es final con destino a Córdoba, o si es una venta al exterior de Córdoba (final o no).
-# Si la venta es a Córdoba pero NO es a un comprador final, no quiero tenerla en cuenta, porque 
-# esa mercadería se volvería a comercializar y la contabilizaría dos veces. Si la mercadería sale de
-# Córdoba, no me interesa si es final o no, porque no vuelve a aparecer en la base y ya salió de la provincia
-# (ya que sólo tengo datos que provienen de Córdoba)
-# DUMMY = "No usar", no me interesa. DUMMY = "Usar", la voy a usar en el análisis
-
-cordoba = ["Cordoba/En destino","Zona 11/En destino","Zona 8/En destino","Zona 9/En destino",
-          "Cordoba/En origen","Zona 11/En origen","Zona 8/En origen","Zona 9/En origen"]
-
-# Indico que si no es final y tiene como destino a Córdoba me agregue que esta operacion no voy a usarla, de lo contrario sí
-# voy a usarla:
-
-data["Comercializadas"] = np.where((data['ES FINAL']=="NO") & (data["LUGAR ENTREGA"].isin(cordoba)), 'No usar', 'Usar')
-
-
 
 # La cosecha no se encuentra armonizada, muchos agregan sólo el año de cosecha, mientras
 # que otros escriben los dos años de la campaña. Por ejemplo, algunos escriben "COSECHA 2021" y otros "COSECHA 20/21",
@@ -233,3 +217,5 @@ while True:
     event, values = window.read()
     if event == sg.WINDOW_CLOSED:
         break
+
+exit()
