@@ -9,7 +9,7 @@
 3) Correr script `data-update.py` para actualizar los datos.
 4) Correr script `data-filtering.py` para filtrar y descargar excel con los datos.
 
-Cualquier duda mi contacto es [Francisco Rolotti](https://www.linkedin.com/in/francisco-rolotti/).
+[Francisco Rolotti](https://www.linkedin.com/in/francisco-rolotti/).
 
 ## Introducción
 
