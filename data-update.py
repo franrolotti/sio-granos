@@ -1,20 +1,32 @@
 import subprocess
 import sys
 
-required_packages = ['numpy as np', 'pandas', 'datetime', 'PyMySQL', 'time', 'selenium', 'webdriver_manager', 'PySimpleGUI as sg', 'unidecode']
+required_packages = ['numpy', 'pandas', 'datetime', 'PyMySQL', 'time', 'selenium', 'webdriver_manager', 'PySimpleGUI', 'unidecode', 'glob']
 
-# Check if required packages are installed
+# Check and install required packages
 for package in required_packages:
-    install_package, _, _ = package.partition(' ')
-    install_package = install_package.split(' ')[0]
     try:
-        module = __import__(install_package)
-        if ' as ' in package:
-            module_alias = package.split(' as ')[1]
-            globals()[module_alias] = module
+        # Try importing the module directly
+        __import__(package)
+
     except ImportError:
-        print(f"Package {install_package} not found. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", install_package])
+        print(f"Package {package} not found. Installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Now import all required packages
+import numpy as np
+import pandas
+import datetime
+import pymysql
+import time
+import os
+import selenium
+import webdriver_manager
+import PySimpleGUI as sg
+import unidecode
+import glob
+
+
 
 
 # Selenium modules
@@ -112,16 +124,19 @@ path_archivos = values[0]
 folder_path = fr'{path}'
 file_type = r'\*csv'
 files = glob.glob(folder_path + file_type)
-max_file = max(files, key=os.path.getctime)
 
-
-while "operaciones_informadas" in max_file:
-    os.remove(max_file)
-
-    folder_path = fr'{path}'
-    file_type = r'\*csv'
-    files = glob.glob(folder_path + file_type)
+try:
     max_file = max(files, key=os.path.getctime)
+
+    while "operaciones_informadas" in max_file:
+        os.remove(max_file)
+
+        folder_path = fr'{path}'
+        file_type = r'\*csv'
+        files = glob.glob(folder_path + file_type)
+        max_file = max(files, key=os.path.getctime)
+except:
+    pass
 
 
 # Borramos los archivos del directorio en el que descargaremos los datos que faltan
