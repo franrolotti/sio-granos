@@ -1,18 +1,23 @@
-import numpy as np
-import pandas as pd
-import datetime as dt
-import os
-import datetime
-import pymysql
-import time
-import datetime
-from datetime import date
-import glob
-import shutil
-import PySimpleGUI as sg
-import unidecode
+import subprocess
+import sys
 
-# Selenium libraries
+required_packages = ['numpy as np', 'pandas', 'datetime', 'PyMySQL', 'time', 'selenium', 'webdriver_manager', 'PySimpleGUI as sg', 'unidecode']
+
+# Check if required packages are installed
+for package in required_packages:
+    install_package, _, _ = package.partition(' ')
+    install_package = install_package.split(' ')[0]
+    try:
+        module = __import__(install_package)
+        if ' as ' in package:
+            module_alias = package.split(' as ')[1]
+            globals()[module_alias] = module
+    except ImportError:
+        print(f"Package {install_package} not found. Installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", install_package])
+
+
+# Selenium modules
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
